@@ -20,10 +20,10 @@ const isLocalhost = Boolean(
     )
 );
 
-type Config = {
+interface Config {
   onSuccess?: (registration: ServiceWorkerRegistration) => void;
   onUpdate?: (registration: ServiceWorkerRegistration) => void;
-};
+}
 
 export function register(config?: Config) {
   if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
@@ -53,7 +53,7 @@ export function register(config?: Config) {
             'This web app is being served cache-first by a service ' +
               'worker. To learn more, visit https://bit.ly/CRA-PWA'
           );
-        });
+        })
       } else {
         // Is not localhost. Just register service worker
         registerValidSW(swUrl, config);
@@ -103,7 +103,7 @@ function registerValidSW(swUrl: string, config?: Config) {
     })
     .catch(error => {
       console.error('Error during service worker registration:', error);
-    });
+    })
 }
 
 function checkValidServiceWorker(swUrl: string, config?: Config) {
@@ -120,7 +120,7 @@ function checkValidServiceWorker(swUrl: string, config?: Config) {
         navigator.serviceWorker.ready.then(registration => {
           registration.unregister().then(() => {
             window.location.reload();
-          });
+          })
         });
       } else {
         // Service worker found. Proceed as normal.
@@ -131,13 +131,13 @@ function checkValidServiceWorker(swUrl: string, config?: Config) {
       console.log(
         'No internet connection found. App is running in offline mode.'
       );
-    });
+    })
 }
 
 export function unregister() {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then(registration => {
       registration.unregister();
-    });
+    })
   }
 }
