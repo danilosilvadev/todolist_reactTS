@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react'
+import React, { MouseEvent, ChangeEvent, FormEvent } from 'react'
 import _ from 'lodash'
 import { randomString } from '../../utils'
 import styled from 'styled-components'
@@ -11,25 +11,75 @@ interface Props {
 export default function({
   state,
   state: { activeTodos },
-  actions: { update },
+  actions: { update, edit, toggleEditMode, toggleDone, cancel },
 }: Props) {
   return (
     <ul>
       {!_.isEmpty(state) &&
-        activeTodos.map(({ todo, isChecked }) => (
+        activeTodos.map(({ todo, isChecked, editMode }, index) => (
           <li key={randomString()} className="is-flex">
-            <StyledInput
-              type="text"
-              value={todo}
-              onChange={update}
-              className="input"
-            />
-            <StyledCheckbox
-              type="checkbox"
-              checked={isChecked}
-              className="checkbox"
-              onChange={update}
-            />
+            {!editMode ? (
+              <>
+                <button
+                  onClick={(e: MouseEvent<HTMLElement>) => {
+                    toggleEditMode(e, index)
+                  }}
+                >
+                  {todo}
+                </button>
+                <StyledCheckbox
+                  type="checkbox"
+                  checked={isChecked}
+                  className="checkbox"
+                  onClick={(e: MouseEvent<HTMLInputElement>) => {
+                    toggleDone(e, index)
+                  }}
+                />
+              </>
+            ) : (
+              <form
+                onSubmit={(e: FormEvent<HTMLFormElement>) => {
+                  update(e, index)
+                }}
+                name="save"
+              >
+                <StyledInput
+                  type="text"
+                  value={todo}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    edit(e, index)
+                  }}
+                  className="input"
+                  required
+                />
+                <StyledCheckbox
+                  type="checkbox"
+                  checked={isChecked}
+                  className="checkbox"
+                  onClick={(e: MouseEvent<HTMLInputElement>) => {
+                    toggleDone(e, index)
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={(e: MouseEvent<HTMLElement>) => {
+                    update(e, index)
+                  }}
+                  name="save"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={(e: MouseEvent<HTMLElement>) => {
+                    cancel(e, index)
+                  }}
+                  name="cancel"
+                >
+                  Cancel
+                </button>
+              </form>
+            )}
           </li>
         ))}
     </ul>

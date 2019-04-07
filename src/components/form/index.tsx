@@ -1,12 +1,10 @@
-import React, { ChangeEvent, KeyboardEvent } from 'react'
+import React from 'react'
 import _ from 'lodash'
+import { State, Actions } from '../../App'
 
 interface Props {
-  actions: {
-    add: (e: KeyboardEvent<HTMLInputElement>) => void
-    change: (e: ChangeEvent<HTMLInputElement>) => void
-  }
-  state: { todoObject: { todo: string; isChecked: boolean } }
+  actions: Actions
+  state: State
 }
 
 export default function({
