@@ -2,10 +2,10 @@ import React, { ChangeEvent } from 'react'
 import _ from 'lodash'
 import { randomString } from '../../utils'
 import styled from 'styled-components'
-
+import { Actions, State } from '../../App'
 interface Props {
-  actions: { update: Function }
-  state: { activeTodos: string[] }
+  actions: Actions
+  state: State
 }
 
 export default function({
@@ -16,17 +16,20 @@ export default function({
   return (
     <ul>
       {!_.isEmpty(state) &&
-        activeTodos.map((item: string) => (
+        activeTodos.map(({ todo, isChecked }) => (
           <li key={randomString()} className="is-flex">
             <StyledInput
               type="text"
-              value={item}
-              onChange={(e: ChangeEvent<HTMLInputElement>): void => {
-                update(e)
-              }}
+              value={todo}
+              onChange={update}
               className="input"
             />
-            <StyledCheckbox type="checkbox" checked className="checkbox" />
+            <StyledCheckbox
+              type="checkbox"
+              checked={isChecked}
+              className="checkbox"
+              onChange={update}
+            />
           </li>
         ))}
     </ul>

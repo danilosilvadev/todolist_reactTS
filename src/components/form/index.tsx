@@ -6,12 +6,14 @@ interface Props {
     add: (e: KeyboardEvent<HTMLInputElement>) => void
     change: (e: ChangeEvent<HTMLInputElement>) => void
   }
-  state: { todo: string }
+  state: { todoObject: { todo: string; isChecked: boolean } }
 }
 
 export default function({
   state,
-  state: { todo },
+  state: {
+    todoObject: { todo },
+  },
   actions: { add, change },
 }: Props) {
   return (

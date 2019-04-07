@@ -4,24 +4,24 @@ import { List, Form } from './components'
 import './App.css'
 import 'bulma/css/bulma.css'
 
-interface State {
-  activeTodos: string[]
-  todo: string
+export interface State {
+  activeTodos: { todo: string; isChecked: boolean }[]
+  todoObject: { todo: string; isChecked: boolean }
   completedTodos: string[]
 }
 
-interface Actions {
+export interface Actions {
   add: (e: KeyboardEvent<HTMLInputElement>) => void
   change: (e: ChangeEvent<HTMLInputElement>) => void
   edit: (e: ChangeEvent<HTMLInputElement>) => void
-  update: (e: FormEvent<HTMLFormElement>) => void
+  update: (e: ChangeEvent<HTMLInputElement>) => void
   delete: (e: FormEvent<HTMLFormElement>) => void
 }
 
 export default class extends Component<{}, State> {
   state = {
-    activeTodos: ['MyList is ready', 'Daquele jeito', 'Tchubibaladumtum'],
-    todo: '',
+    activeTodos: [{ todo: 'myTodo', isChecked: true }],
+    todoObject: { todo: '', isChecked: false },
     completedTodos: [],
   }
 
@@ -35,26 +35,48 @@ export default class extends Component<{}, State> {
 
   private handleAdd(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
-      this.setState(({ activeTodos, todo }) => ({
-        activeTodos: [...activeTodos, todo],
-        todo: '',
+      this.setState((prevState: State) => ({
+        activeTodos: [...prevState.activeTodos, prevState.todoObject],
+        todoObject: { todo: '', isChecked: false },
       }))
     }
   }
 
   private handleChange(e: ChangeEvent<HTMLInputElement>) {
-    this.setState({
-      todo: e.currentTarget.value,
-    })
+    const todo = e.currentTarget.value
+    this.setState((prevState: State) => ({
+      todoObject: {
+        todo,
+        isChecked: prevState.todoObject.isChecked,
+      },
+    }))
   }
 
   private handleEdit(e: ChangeEvent<HTMLInputElement>) {
-    this.setState({
-      todo: e.target.value,
-    })
+    this.setState((prevState: State) => ({
+      todoObject: {
+        todo: e.currentTarget.value,
+        isChecked: prevState.todoObject.isChecked,
+      },
+    }))
   }
 
-  private handleUpdate() {}
+  private handleUpdate(e: KeyboardEvent<HTMLInputElement>) {
+    // TODO: Set position and update the element at its position
+    const todo = e.currentTarget.value
+    this.setState((prevState: State) => ({
+      todoObject: {
+        todo,
+        isChecked: prevState.todoObject.isChecked,
+      },
+    }))
+    if (e.key === 'Enter') {
+      this.setState((prevState: State) => ({
+        activeTodos: [...prevState.activeTodos, prevState.todoObject],
+        todoObject: { todo: '', isChecked: false },
+      }))
+    }
+  }
 
   private handleDelete() {}
 
