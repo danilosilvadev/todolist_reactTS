@@ -8,10 +8,10 @@ interface Props {
   state: State
 }
 
-export default function({
+export default function ({
   state,
   state: { activeTodos },
-  actions: { update, edit, toggleEditMode, toggleDone, cancel },
+  actions: { update, edit, toggleEditMode, toggleDone, cancel, remove },
 }: Props) {
   return (
     <ul>
@@ -34,10 +34,15 @@ export default function({
                   type="checkbox"
                   checked={isChecked}
                   className="checkbox"
-                  onClick={(e: MouseEvent<HTMLInputElement>) => {
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
                     toggleDone(e, index)
                   }}
                 />
+                <button type='button' onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                    remove(e, index)
+                  }}>
+                  X
+                </button>
               </>
             ) : (
               <form
@@ -59,7 +64,7 @@ export default function({
                   type="checkbox"
                   checked={isChecked}
                   className="checkbox"
-                  onClick={(e: MouseEvent<HTMLInputElement>) => {
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
                     toggleDone(e, index)
                   }}
                 />

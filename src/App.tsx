@@ -23,7 +23,7 @@ type formAndIdex = (
   index: number
 ) => void
 type onClickAndIndex = (e: MouseEvent<HTMLButtonElement>, index: number) => void
-type onClick = (e: FormEvent<HTMLFormElement>) => void
+type onClick = (e: FormEvent<HTMLButtonElement>) => void
 type checkboxClick = (e: MouseEvent<HTMLInputElement>, index: number) => void
 export interface State {
   activeTodos: todo[]
@@ -39,8 +39,8 @@ export interface Actions {
   update: formAndIdex
   cancel: onClickAndIndex
   toggleEditMode: onClickAndIndex
-  toggleDone: checkboxClick
-  delete: onClick
+  toggleDone: onChangeAndIndex
+  remove: onClickAndIndex
 }
 
 export default class extends Component<{}, State> {
@@ -66,8 +66,8 @@ export default class extends Component<{}, State> {
       todoObject: {
         todo: todoText,
         isChecked: prevState.todoObject.isChecked,
-        editMode: false,
-      },
+        editMode: false
+      }
     }))
   }
 
@@ -77,7 +77,7 @@ export default class extends Component<{}, State> {
     list[index] = {
       todo: todoText,
       isChecked: list[index].isChecked,
-      editMode: true,
+      editMode: true
     }
     this.setState({ activeTodos: list })
   }
@@ -91,7 +91,7 @@ export default class extends Component<{}, State> {
     list[index] = {
       todo: list[index].todo,
       isChecked: list[index].isChecked,
-      editMode: false,
+      editMode: false
     }
     if (list[index].todo) this.setState({ activeTodos: list })
   }
@@ -114,37 +114,51 @@ export default class extends Component<{}, State> {
     list[index] = {
       todo: list[index].todo,
       isChecked: list[index].isChecked,
-      editMode: true,
+      editMode: true
     }
     this.setState((prevState: State) => {
       let tempList = []
       tempList = [...prevState.activeTodos]
       return {
         tempTodo: tempList[index],
-        activeTodos: list,
+        activeTodos: list
       }
     })
   }
 
   private handleToggleDone = (
-    e: MouseEvent<HTMLInputElement>,
+    e: ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
     let list: todo[] = [...this.state.activeTodos]
     list[index].isChecked = !this.state.activeTodos[index].isChecked
-    /*const newList = _.remove(list, (item: todo, i: number) => {
-      return i !== index
-    })*/
-    // completed TODOS
     const completedList = [...this.state.activeTodos].filter(
-      (item, i) => i === index
+      (item, i) => list[i].isChecked && item
     )
     this.setState({
       activeTodos: list,
+      completedTodos: completedList
+    }, () => {
+      console.log(this.state.completedTodos)
     })
   }
 
-  private handleDelete() {}
+  private handleRemove = (
+    e: MouseEvent<HTMLButtonElement>,
+    index: number
+  ) => {
+    let list: todo[] = [...this.state.activeTodos]
+    const newList = _.remove(list, (item: todo, i: number) => {
+      return i !== index
+    })
+    const completedList = [...newList].filter(
+      (item, i) => list[i].isChecked && item
+    )
+    this.setState({
+      activeTodos: newList,
+      completedTodos: completedList
+    })
+  }
 
   actions: Actions = {
     add: this.handleAdd,
@@ -152,45 +166,27 @@ export default class extends Component<{}, State> {
     edit: this.handleEdit,
     update: this.handleUpdate,
     cancel: this.handleCancel,
-    delete: this.handleDelete,
+    remove: this.handleRemove,
     toggleEditMode: this.handleToggleEditMode,
-    toggleDone: this.handleToggleDone,
+    toggleDone: this.handleToggleDone
   }
 
-  render() {
+  render () {
     return (
-      <Router>
-        <div>
+      <div className="columns is-centered">
+        <div className="column is-6-desktop is-6-mobile">
+        <h1>TODO</h1>
+          <Form state={this.state} actions={this.actions} />
+          <List state={this.state} actions={this.actions} />
           <nav>
-            <ul className="tabs is-small">
-              <li className="is-active">
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/about/">About</Link>
-              </li>
-              <li>
-                <Link to="/users/">Users</Link>
-              </li>
+            <ul className='is-flex'>
+              <li><a>All</a></li>
+              <li><a>Active</a></li>
+              <li><a>Done</a></li>
             </ul>
           </nav>
-
-          <Route
-            path="/"
-            exact
-            render={() => (
-              <div className="columns is-centered">
-                <div className="column is-6-desktop is-6-mobile">
-                  <Form state={this.state} actions={this.actions} />
-                  <List state={this.state} actions={this.actions} />
-                </div>
-              </div>
-            )}
-          />
-          <Route path="/about/" component={() => <div />} />
-          <Route path="/users/" component={() => <div />} />
         </div>
-      </Router>
+      </div>
     )
   }
 }
