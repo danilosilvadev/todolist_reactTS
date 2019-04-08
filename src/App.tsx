@@ -6,29 +6,41 @@ import React, {
   MouseEvent,
 } from 'react'
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import _ from 'lodash'
 import { List, Form } from './components'
 import './App.css'
 import 'bulma/css/bulma.css'
 
+type todo = { todo: string; isChecked: boolean; editMode: boolean }
+type keyBoard = (e: KeyboardEvent<HTMLInputElement>) => void
+type onChange = (e: ChangeEvent<HTMLInputElement>) => void
+type onChangeAndIndex = (
+  e: ChangeEvent<HTMLInputElement>,
+  index: number
+) => void
+type formAndIdex = (
+  e: FormEvent<HTMLFormElement> | MouseEvent<HTMLButtonElement>,
+  index: number
+) => void
+type onClickAndIndex = (e: MouseEvent<HTMLButtonElement>, index: number) => void
+type onClick = (e: FormEvent<HTMLFormElement>) => void
+type checkboxClick = (e: MouseEvent<HTMLInputElement>, index: number) => void
 export interface State {
-  activeTodos: { todo: string; isChecked: boolean; editMode: boolean }[]
-  todoObject: { todo: string; isChecked: boolean; editMode: boolean }
-  completedTodos: { todo: string; isChecked: boolean; editMode: boolean }[]
-  tempTodo: { todo: string; isChecked: boolean; editMode: boolean }
+  activeTodos: todo[]
+  todoObject: todo
+  completedTodos: todo[]
+  tempTodo: todo
 }
 
 export interface Actions {
-  add: (e: KeyboardEvent<HTMLInputElement>) => void
-  change: (e: ChangeEvent<HTMLInputElement>) => void
-  edit: (e: ChangeEvent<HTMLInputElement>, index: number) => void
-  update: (
-    e: FormEvent<HTMLFormElement> | MouseEvent<HTMLElement>,
-    index: number
-  ) => void
-  cancel: (e: MouseEvent<HTMLElement>, index: number) => void
-  toggleEditMode: (e: MouseEvent<HTMLElement>, index: number) => void
-  toggleDone: (e: MouseEvent<HTMLSpanElement>, index: number) => void
-  delete: (e: FormEvent<HTMLFormElement>) => void
+  add: keyBoard
+  change: onChange
+  edit: onChangeAndIndex
+  update: formAndIdex
+  cancel: onClickAndIndex
+  toggleEditMode: onClickAndIndex
+  toggleDone: checkboxClick
+  delete: onClick
 }
 
 export default class extends Component<{}, State> {
@@ -39,20 +51,7 @@ export default class extends Component<{}, State> {
     tempTodo: { todo: '', isChecked: false, editMode: false },
   }
 
-  actions: Actions = {
-    add: this.handleAdd = this.handleAdd.bind(this),
-    change: this.handleChange = this.handleChange.bind(this),
-    edit: this.handleEdit = this.handleEdit.bind(this),
-    update: this.handleUpdate = this.handleUpdate.bind(this),
-    cancel: this.handleCancel = this.handleCancel.bind(this),
-    delete: this.handleDelete = this.handleDelete.bind(this),
-    toggleEditMode: this.handleToggleEditMode = this.handleToggleEditMode.bind(
-      this
-    ),
-    toggleDone: this.handleToggleDone = this.handleToggleDone.bind(this),
-  }
-
-  private handleAdd(e: KeyboardEvent<HTMLInputElement>) {
+  private handleAdd = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       this.setState((prevState: State) => ({
         activeTodos: [...prevState.activeTodos, prevState.todoObject],
@@ -61,7 +60,7 @@ export default class extends Component<{}, State> {
     }
   }
 
-  private handleChange(e: ChangeEvent<HTMLInputElement>) {
+  private handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const todoText = e.currentTarget.value
     this.setState((prevState: State) => ({
       todoObject: {
@@ -72,8 +71,8 @@ export default class extends Component<{}, State> {
     }))
   }
 
-  private handleEdit(e: ChangeEvent<HTMLInputElement>, index: number) {
-    const list = this.state.activeTodos
+  private handleEdit = (e: ChangeEvent<HTMLInputElement>, index: number) => {
+    let list: todo[] = [...this.state.activeTodos]
     const todoText = e.currentTarget.value
     list[index] = {
       todo: todoText,
@@ -83,10 +82,10 @@ export default class extends Component<{}, State> {
     this.setState({ activeTodos: list })
   }
 
-  private handleUpdate(
-    e: FormEvent<HTMLFormElement> | MouseEvent<HTMLElement>,
+  private handleUpdate = (
+    e: FormEvent<HTMLFormElement> | MouseEvent<HTMLButtonElement>,
     index: number
-  ) {
+  ) => {
     e.preventDefault()
     const list = this.state.activeTodos
     list[index] = {
@@ -97,18 +96,21 @@ export default class extends Component<{}, State> {
     if (list[index].todo) this.setState({ activeTodos: list })
   }
 
-  private handleCancel(
-    e: FormEvent<HTMLFormElement> | MouseEvent<HTMLElement>,
+  private handleCancel = (
+    e: FormEvent<HTMLFormElement> | MouseEvent<HTMLButtonElement>,
     index: number
-  ) {
+  ) => {
     const list = this.state.activeTodos
     list[index] = this.state.tempTodo
     list[index].editMode = false
     this.setState({ activeTodos: list })
   }
 
-  private handleToggleEditMode(e: MouseEvent<HTMLSpanElement>, index: number) {
-    const list = this.state.activeTodos
+  private handleToggleEditMode = (
+    e: MouseEvent<HTMLSpanElement>,
+    index: number
+  ) => {
+    let list: todo[] = [...this.state.activeTodos]
     list[index] = {
       todo: list[index].todo,
       isChecked: list[index].isChecked,
@@ -124,9 +126,36 @@ export default class extends Component<{}, State> {
     })
   }
 
-  private handleToggleDone(e: MouseEvent<HTMLSpanElement>, index: number) {}
+  private handleToggleDone = (
+    e: MouseEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    let list: todo[] = [...this.state.activeTodos]
+    list[index].isChecked = !this.state.activeTodos[index].isChecked
+    /*const newList = _.remove(list, (item: todo, i: number) => {
+      return i !== index
+    })*/
+    // completed TODOS
+    const completedList = [...this.state.activeTodos].filter(
+      (item, i) => i === index
+    )
+    this.setState({
+      activeTodos: list,
+    })
+  }
 
   private handleDelete() {}
+
+  actions: Actions = {
+    add: this.handleAdd,
+    change: this.handleChange,
+    edit: this.handleEdit,
+    update: this.handleUpdate,
+    cancel: this.handleCancel,
+    delete: this.handleDelete,
+    toggleEditMode: this.handleToggleEditMode,
+    toggleDone: this.handleToggleDone,
+  }
 
   render() {
     return (

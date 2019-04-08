@@ -43,6 +43,7 @@
     "@types/styled-components": "^4.1.13",
     "@typescript-eslint/eslint-plugin": "^1.6.0",
     "@typescript-eslint/parser": "^1.6.0",
+    "autobind-decorator": "^2.4.0",
     "bulma": "^0.7.4",
     "eslint-config-prettier": "^4.1.0",
     "eslint-config-standard": "^12.0.0",

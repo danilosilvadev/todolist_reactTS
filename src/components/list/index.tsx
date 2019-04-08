@@ -21,8 +21,11 @@ export default function({
             {!editMode ? (
               <>
                 <button
-                  onClick={(e: MouseEvent<HTMLElement>) => {
+                  onClick={(e: MouseEvent<HTMLButtonElement>) => {
                     toggleEditMode(e, index)
+                  }}
+                  style={{
+                    textDecoration: `${isChecked ? 'line-through' : 'none'}`,
                   }}
                 >
                   {todo}
@@ -62,7 +65,7 @@ export default function({
                 />
                 <button
                   type="button"
-                  onClick={(e: MouseEvent<HTMLElement>) => {
+                  onClick={(e: MouseEvent<HTMLButtonElement>) => {
                     update(e, index)
                   }}
                   name="save"
@@ -71,7 +74,7 @@ export default function({
                 </button>
                 <button
                   type="button"
-                  onClick={(e: MouseEvent<HTMLElement>) => {
+                  onClick={(e: MouseEvent<HTMLButtonElement>) => {
                     cancel(e, index)
                   }}
                   name="cancel"
