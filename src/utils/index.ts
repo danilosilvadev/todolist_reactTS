@@ -1,3 +1,3 @@
-import randomString from './randomString'
+import randomString from './ts/randomString'
 
 export { randomString }

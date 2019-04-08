@@ -4,117 +4,114 @@ import React, {
   ChangeEvent,
   KeyboardEvent,
   MouseEvent,
+  KeyboardEventHandler,
+  ChangeEventHandler
 } from 'react'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import _ from 'lodash'
-import { List, Form } from './components'
-import './App.css'
+import { TodoForm, TodoList } from './components'
 import 'bulma/css/bulma.css'
+import './utils/scss/index.scss'
+import { randomString } from './utils'
 
-type todo = { todo: string; isChecked: boolean; editMode: boolean }
-type keyBoard = (e: KeyboardEvent<HTMLInputElement>) => void
-type onChange = (e: ChangeEvent<HTMLInputElement>) => void
-type onChangeAndIndex = (
-  e: ChangeEvent<HTMLInputElement>,
-  index: number
-) => void
-type formAndIdex = (
-  e: FormEvent<HTMLFormElement> | MouseEvent<HTMLButtonElement>,
-  index: number
-) => void
-type onClickAndIndex = (e: MouseEvent<HTMLButtonElement>, index: number) => void
-type onClick = (e: FormEvent<HTMLButtonElement>) => void
-type checkboxClick = (e: MouseEvent<HTMLInputElement>, index: number) => void
+type todo = { todo: string; isChecked: boolean; editMode: boolean, id: string }
 export interface State {
   activeTodos: todo[]
   todoObject: todo
-  completedTodos: todo[]
   tempTodo: todo
 }
 
 export interface Actions {
-  add: keyBoard
-  change: onChange
-  edit: onChangeAndIndex
-  update: formAndIdex
-  cancel: onClickAndIndex
-  toggleEditMode: onClickAndIndex
-  toggleDone: onChangeAndIndex
-  remove: onClickAndIndex
+  add: KeyboardEventHandler
+  change: ChangeEventHandler
+  edit: (e: ChangeEvent<HTMLInputElement>, index: number) => void
+  update: (
+    e: FormEvent<HTMLFormElement> | MouseEvent<HTMLButtonElement>,
+    index: number
+  ) => void
+  cancel: (e: MouseEvent<HTMLButtonElement>, index: number) => void
+  toggleEditMode: (e: MouseEvent<HTMLButtonElement>, index: number) => void
+  toggleDone: (e: ChangeEvent<HTMLInputElement>, index: number) => void
+  remove: (e: MouseEvent<HTMLButtonElement>, index: number) => void
 }
+
+const todoDefault = { todo: '', isChecked: false, editMode: false, id: '' }
 
 export default class extends Component<{}, State> {
   state = {
-    activeTodos: [{ todo: 'myTodo', isChecked: true, editMode: false }],
-    todoObject: { todo: '', isChecked: false, editMode: false },
-    completedTodos: [],
-    tempTodo: { todo: '', isChecked: false, editMode: false },
+    activeTodos: [todoDefault],
+    todoObject: todoDefault,
+    tempTodo: todoDefault
   }
 
-  private handleAdd = (e: KeyboardEvent<HTMLInputElement>) => {
+  handleAdd = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       this.setState((prevState: State) => ({
         activeTodos: [...prevState.activeTodos, prevState.todoObject],
-        todoObject: { todo: '', isChecked: false, editMode: false },
+        todoObject: { todo: '', isChecked: false, editMode: false, id: randomString() }
       }))
     }
   }
 
-  private handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const todoText = e.currentTarget.value
     this.setState((prevState: State) => ({
       todoObject: {
         todo: todoText,
         isChecked: prevState.todoObject.isChecked,
-        editMode: false
+        editMode: false,
+        id: randomString()
       }
     }))
   }
 
-  private handleEdit = (e: ChangeEvent<HTMLInputElement>, index: number) => {
-    let list: todo[] = [...this.state.activeTodos]
+  handleEdit = (e: ChangeEvent<HTMLInputElement>, index: number) => {
+    let list = [...this.state.activeTodos]
     const todoText = e.currentTarget.value
     list[index] = {
       todo: todoText,
       isChecked: list[index].isChecked,
-      editMode: true
+      editMode: true,
+      id: list[index].id
     }
     this.setState({ activeTodos: list })
   }
 
-  private handleUpdate = (
+  handleUpdate = (
     e: FormEvent<HTMLFormElement> | MouseEvent<HTMLButtonElement>,
     index: number
   ) => {
     e.preventDefault()
-    const list = this.state.activeTodos
-    list[index] = {
-      todo: list[index].todo,
-      isChecked: list[index].isChecked,
-      editMode: false
+    const list = [...this.state.activeTodos]
+    if (list.length > 0) {
+      list[index] = {
+        todo: list[index].todo,
+        isChecked: list[index].isChecked,
+        editMode: false,
+        id: list[index].id
+      }
+      if (list[index].todo) this.setState({ activeTodos: list })
     }
-    if (list[index].todo) this.setState({ activeTodos: list })
   }
 
-  private handleCancel = (
+  handleCancel = (
     e: FormEvent<HTMLFormElement> | MouseEvent<HTMLButtonElement>,
     index: number
   ) => {
-    const list = this.state.activeTodos
-    list[index] = this.state.tempTodo
-    list[index].editMode = false
-    this.setState({ activeTodos: list })
+    const list = [...this.state.activeTodos]
+    if (list.length > 0) {
+      list[index] = this.state.tempTodo
+      list[index].editMode = false
+      this.setState({ activeTodos: list })
+    }
   }
 
-  private handleToggleEditMode = (
-    e: MouseEvent<HTMLSpanElement>,
-    index: number
-  ) => {
-    let list: todo[] = [...this.state.activeTodos]
+  handleToggleEditMode = (e: MouseEvent<HTMLSpanElement>, index: number) => {
+    let list = [...this.state.activeTodos]
     list[index] = {
       todo: list[index].todo,
       isChecked: list[index].isChecked,
-      editMode: true
+      editMode: true,
+      id: list[index].id
     }
     this.setState((prevState: State) => {
       let tempList = []
@@ -126,37 +123,22 @@ export default class extends Component<{}, State> {
     })
   }
 
-  private handleToggleDone = (
-    e: ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    let list: todo[] = [...this.state.activeTodos]
-    list[index].isChecked = !this.state.activeTodos[index].isChecked
-    const completedList = [...this.state.activeTodos].filter(
-      (item, i) => list[i].isChecked && item
-    )
+  handleToggleDone = (e: ChangeEvent<HTMLInputElement>, index: number) => {
+    let list = [...this.state.activeTodos]
+    list[index].isChecked =
+      this.state.activeTodos[index] && !this.state.activeTodos[index].isChecked
     this.setState({
-      activeTodos: list,
-      completedTodos: completedList
-    }, () => {
-      console.log(this.state.completedTodos)
+      activeTodos: list
     })
   }
 
-  private handleRemove = (
-    e: MouseEvent<HTMLButtonElement>,
-    index: number
-  ) => {
-    let list: todo[] = [...this.state.activeTodos]
+  handleRemove = (e: MouseEvent<HTMLButtonElement>, index: number) => {
+    let list = [...this.state.activeTodos]
     const newList = _.remove(list, (item: todo, i: number) => {
       return i !== index
     })
-    const completedList = [...newList].filter(
-      (item, i) => list[i].isChecked && item
-    )
     this.setState({
-      activeTodos: newList,
-      completedTodos: completedList
+      activeTodos: newList
     })
   }
 
@@ -173,18 +155,11 @@ export default class extends Component<{}, State> {
 
   render () {
     return (
-      <div className="columns is-centered">
-        <div className="column is-6-desktop is-6-mobile">
-        <h1>TODO</h1>
-          <Form state={this.state} actions={this.actions} />
-          <List state={this.state} actions={this.actions} />
-          <nav>
-            <ul className='is-flex'>
-              <li><a>All</a></li>
-              <li><a>Active</a></li>
-              <li><a>Done</a></li>
-            </ul>
-          </nav>
+      <div className="columns is-centered section f">
+        <div className="column is-10-mobile is-8-tablet is-6-desktop">
+          <h1>TODOS</h1>
+          <TodoForm state={this.state} actions={this.actions} />
+          <TodoList state={this.state} actions={this.actions} />
         </div>
       </div>
     )

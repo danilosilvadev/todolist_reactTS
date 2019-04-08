@@ -1,4 +1,4 @@
-import List from './list'
-import Form from './form'
+import TodoList from './todoList'
+import TodoForm from './todoForm'
 
-export { List, Form }
+export { TodoList, TodoForm }
