@@ -1,6 +1,4 @@
-import React, { MouseEvent, ChangeEvent, FormEvent } from 'react'
-import { randomString } from '../../utils'
-import styled from 'styled-components'
+import React from 'react'
 import { Actions, State } from '../../App'
 import TodoView from './todoView'
 import TodoOnEditMode from './todoOnEditMode'
@@ -10,14 +8,14 @@ interface Props {
   state: State
 }
 
-export default function({ state, state: { activeTodos }, actions }: Props) {
+export default function({ state: { activeTodos }, actions }: Props) {
   return (
     <ul>
       {activeTodos.length > 0 &&
-        activeTodos.map(({ todo, isChecked, editMode }, index) => (
-          <>
+        activeTodos.map(({ todo, isChecked, editMode, id }, index) => (
+          <li key={id}>
             {todo === '' ? null : (
-              <li key={randomString()}>
+              <>
                 {!editMode ? (
                   <TodoView
                     actions={actions}
@@ -31,23 +29,10 @@ export default function({ state, state: { activeTodos }, actions }: Props) {
                     todo={{ todo, isChecked }}
                   />
                 )}
-              </li>
+              </>
             )}
-          </>
+          </li>
         ))}
     </ul>
   )
 }
-
-const StyledInput = styled.input<{ type: string; value: string }>`
-  border: none;
-  width: 100%;
-`
-
-const StyledCheckbox = styled.input<{ type: string; checked: boolean }>``
-
-const StyledButton = styled.button`
-  padding: 0;
-  border: none;
-  background: none;
-`

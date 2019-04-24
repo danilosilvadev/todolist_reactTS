@@ -5,14 +5,16 @@ import React, {
   KeyboardEvent,
   MouseEvent,
   KeyboardEventHandler,
-  ChangeEventHandler,
+  ChangeEventHandler
 } from 'react'
 import _ from 'lodash'
 import { TodoForm, TodoList } from './components'
 import 'bulma/css/bulma.css'
 import './utils/scss/index.scss'
+import { randomString } from './utils'
 
-type todo = { todo: string; isChecked: boolean; editMode: boolean }
+type todo = { todo: string; isChecked: boolean; editMode: boolean, id: string }
+
 export interface State {
   activeTodos: todo[]
   todoObject: todo
@@ -33,20 +35,20 @@ export interface Actions {
   remove: (e: MouseEvent<HTMLButtonElement>, index: number) => void
 }
 
-const todoDefault = { todo: '', isChecked: false, editMode: false }
+const todoDefault = { todo: '', isChecked: false, editMode: false, id: '' }
 
 export default class extends Component<{}, State> {
   state = {
     activeTodos: [todoDefault],
     todoObject: todoDefault,
-    tempTodo: todoDefault,
+    tempTodo: todoDefault
   }
 
   handleAdd = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       this.setState((prevState: State) => ({
         activeTodos: [...prevState.activeTodos, prevState.todoObject],
-        todoObject: { todo: '', isChecked: false, editMode: false },
+        todoObject: { todo: '', isChecked: false, editMode: false, id: randomString() }
       }))
     }
   }
@@ -58,7 +60,8 @@ export default class extends Component<{}, State> {
         todo: todoText,
         isChecked: prevState.todoObject.isChecked,
         editMode: false,
-      },
+        id: randomString()
+      }
     }))
   }
 
@@ -69,6 +72,7 @@ export default class extends Component<{}, State> {
       todo: todoText,
       isChecked: list[index].isChecked,
       editMode: true,
+      id: list[index].id
     }
     this.setState({ activeTodos: list })
   }
@@ -84,6 +88,7 @@ export default class extends Component<{}, State> {
         todo: list[index].todo,
         isChecked: list[index].isChecked,
         editMode: false,
+        id: list[index].id
       }
       if (list[index].todo) this.setState({ activeTodos: list })
     }
@@ -107,6 +112,7 @@ export default class extends Component<{}, State> {
       todo: list[index].todo,
       isChecked: list[index].isChecked,
       editMode: true,
+      id: list[index].id
     }
     this.setState((prevState: State) => {
       let tempList = []
@@ -123,7 +129,7 @@ export default class extends Component<{}, State> {
     list[index].isChecked =
       this.state.activeTodos[index] && !this.state.activeTodos[index].isChecked
     this.setState({
-      activeTodos: list,
+      activeTodos: list
     })
   }
 
@@ -133,7 +139,7 @@ export default class extends Component<{}, State> {
       return i !== index
     })
     this.setState({
-      activeTodos: newList,
+      activeTodos: newList
     })
   }
 
@@ -150,7 +156,7 @@ export default class extends Component<{}, State> {
 
   render() {
     return (
-      <div className="columns is-centered section">
+      <div className="columns is-centered section f">
         <div className="column is-10-mobile is-8-tablet is-6-desktop">
           <h1>TODOS</h1>
           <TodoForm state={this.state} actions={this.actions} />
