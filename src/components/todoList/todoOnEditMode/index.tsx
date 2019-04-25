@@ -1,5 +1,5 @@
 import React, { FormEvent, ChangeEvent, MouseEvent } from 'react'
-import { Actions, State } from '../../../App'
+import { Actions, State } from '../../../App2'
 import styled from 'styled-components'
 
 interface Props {

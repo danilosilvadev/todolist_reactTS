@@ -1,6 +1,6 @@
 import React from 'react'
 import _ from 'lodash'
-import { State, Actions } from '../../App'
+import { State, Actions } from '../../App2'
 
 interface Props {
   actions: Actions

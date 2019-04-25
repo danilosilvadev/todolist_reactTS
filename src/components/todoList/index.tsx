@@ -1,5 +1,5 @@
 import React from 'react'
-import { Actions, State } from '../../App'
+import { Actions, State } from '../../App2'
 import TodoView from './todoView'
 import TodoOnEditMode from './todoOnEditMode'
 
